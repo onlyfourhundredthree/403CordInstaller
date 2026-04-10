@@ -1,0 +1,62 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-SDL2
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~\AppData\Local\go-build
+            ~\go\pkg\mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build 403Cord Installer
+        shell: msys2 {0}
+        run: |
+          export PATH=/mingw64/bin:$PATH
+          
+          # Get dependencies
+          go mod tidy
+          
+          # Install and run go-winres
+          go install github.com/tc-hib/go-winres@latest
+          $(go env GOPATH)/bin/go-winres make
+          
+          # Build with CGO enabled
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags static \
+            -ldflags "-s -w -H=windowsgui -extldflags=-static -X '403cordinstaller/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)'" \
+            -o 403CordInstaller.exe
+
+      - name: Upload Installer .exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: 403CordInstaller-Windows
+          path: 403CordInstaller.exe
