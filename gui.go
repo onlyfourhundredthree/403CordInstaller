@@ -607,14 +607,6 @@ func renderErrorCard(col color.Color, message string, height float32) g.Widget {
 
 func loop() {
 	g.PushWindowPadding(48, 48)
-	g.PushStyleColor(g.StyleColorWindowBg, CordBg)
-	g.PushStyleColor(g.StyleColorTitleBg, CordSurface)
-	g.PushStyleColor(g.StyleColorButton, CordSurface)
-	g.PushStyleColor(g.StyleColorButtonHovered, CordTeal)
-	g.PushStyleVarFloat(g.StyleVarWindowRounding, 16)
-	g.PushStyleVarFloat(g.StyleVarFrameRounding, 8)
-	g.PushStyleVarFloat(g.StyleVarChildRounding, 12)
-	g.PushStyleVarFloat(g.StyleVarPopupRounding, 12)
 
 	g.SingleWindow().
 		RegisterKeyboardShortcuts(
@@ -630,48 +622,59 @@ func loop() {
 			}},
 		).
 		Layout(
-			g.Align(g.AlignCenter).To(
-				g.Style().SetFontSize(40).To(
-					g.Label("403Cord Installer"),
-				),
-			),
-
-			g.Dummy(0, 20),
-			g.Style().SetFontSize(20).To(
-				g.Row(
-					g.Label(Ternary(IsDevInstall, "Dev Install: ", "403Cord will be downloaded to: ")+CordDirectory),
-					g.Style().
-						SetColor(g.StyleColorButton, DiscordBlue).
-						SetStyle(g.StyleVarFramePadding, 4, 4).
-						To(
-							g.Button("Open Directory").OnClick(func() {
-								g.OpenURL("file://" + path.Dir(CordDirectory))
-							}),
+			g.Style().
+				SetColor(g.StyleColorWindowBg, CordBg).
+				SetColor(g.StyleColorTitleBg, CordSurface).
+				SetColor(g.StyleColorButton, CordSurface).
+				SetColor(g.StyleColorButtonHovered, CordTeal).
+				SetStyleFloat(g.StyleVarWindowRounding, 16).
+				SetStyleFloat(g.StyleVarFrameRounding, 8).
+				SetStyleFloat(g.StyleVarChildRounding, 12).
+				SetStyleFloat(g.StyleVarPopupRounding, 12).
+				To(
+					g.Layout{
+						g.Align(g.AlignCenter).To(
+							g.Style().SetFontSize(40).To(
+								g.Label("403Cord Installer"),
+							),
 						),
-				),
-				&CondWidget{!IsDevInstall, func() g.Widget {
-					return g.Label("To customise this location, set the environment variable '403CORD_USER_DATA_DIR' and restart me").Wrapped(true)
-				}, nil},
-				g.Dummy(0, 10),
-				g.Label("Installer Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
-				g.Label("Local 403Cord Version: "+InstalledHash),
-				&CondWidget{
-					GithubError == nil,
-					func() g.Widget {
-						if IsDevInstall {
-							return g.Label("Not updating 403Cord due to being in DevMode")
-						}
-						return g.Label("Latest 403Cord Version: " + LatestHash)
-					}, func() g.Widget {
-						return renderErrorCard(DiscordRed, "Failed to fetch Info from GitHub: "+GithubError.Error(), 40)
-					},
-				},
-			),
 
-			renderInstaller(),
+						g.Dummy(0, 20),
+						g.Style().SetFontSize(20).To(
+							g.Row(
+								g.Label(Ternary(IsDevInstall, "Dev Install: ", "403Cord will be downloaded to: ")+CordDirectory),
+								g.Style().
+									SetColor(g.StyleColorButton, DiscordBlue).
+									SetStyle(g.StyleVarFramePadding, 4, 4).
+									To(
+										g.Button("Open Directory").OnClick(func() {
+											g.OpenURL("file://" + path.Dir(CordDirectory))
+										}),
+									),
+							),
+							&CondWidget{!IsDevInstall, func() g.Widget {
+								return g.Label("To customise this location, set the environment variable '403CORD_USER_DATA_DIR' and restart me").Wrapped(true)
+							}, nil},
+							g.Dummy(0, 10),
+							g.Label("Installer Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
+							g.Label("Local 403Cord Version: "+InstalledHash),
+							&CondWidget{
+								GithubError == nil,
+								func() g.Widget {
+									if IsDevInstall {
+										return g.Label("Not updating 403Cord due to being in DevMode")
+									}
+									return g.Label("Latest 403Cord Version: " + LatestHash)
+								}, func() g.Widget {
+									return renderErrorCard(DiscordRed, "Failed to fetch Info from GitHub: "+GithubError.Error(), 40)
+								},
+							},
+						),
+
+						renderInstaller(),
+					},
+				),
 		)
 
-	g.PopStyleColorV(4)
-	g.PopStyleVarV(4)
 	g.PopStyle()
 }
