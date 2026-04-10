@@ -13,12 +13,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # v3 -> v4 yaptık
-
-      - name: Install Go
-        uses: actions/setup-go@v5 # v4 -> v5 yaptık
-        with:
-          go-version: "1.21"
+        uses: actions/checkout@v4
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -27,30 +22,27 @@ jobs:
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-SDL2
-
-      - name: Cache Go modules
-        uses: actions/cache@v4 # v3 -> v4 yaptık
-        with:
-          path: |
-            ~\AppData\Local\go-build
-            ~\go\pkg\mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+            mingw-w64-x86_64-go
+            git
 
       - name: Build 403Cord Installer
         shell: msys2 {0}
         run: |
+          export GOROOT=/mingw64/lib/go
+          export GOPATH=/mingw64
           export PATH=/mingw64/bin:$PATH
+          
           go mod tidy
+          
           go install github.com/tc-hib/go-winres@latest
-          $(go env GOPATH)/bin/go-winres make
+          /mingw64/bin/go-winres make
+          
           CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags static \
             -ldflags "-s -w -H=windowsgui -extldflags=-static -X '403cordinstaller/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)'" \
             -o 403CordInstaller.exe
 
       - name: Upload Installer .exe
-        uses: actions/upload-artifact@v4 # CRITICAL FIX: v3 -> v4
+        uses: actions/upload-artifact@v4
         with:
           name: 403CordInstaller-Windows
           path: 403CordInstaller.exe
