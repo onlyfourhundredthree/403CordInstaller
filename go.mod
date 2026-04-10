@@ -1,4 +1,4 @@
-module vencordinstaller
+module 403cordinstaller
 
 go 1.20
 

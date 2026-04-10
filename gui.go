@@ -2,8 +2,8 @@
 
 /*
  * SPDX-License-Identifier: GPL-3.0
- * Vencord Installer, a cross platform gui/cli app for installing Vencord
- * Copyright (c) 2023 Vendicated and Vencord contributors
+ * 403Cord Installer, a cross platform gui/cli app for installing 403Cord
+ * Copyright (c) 2023 onlyfourhundredthree and 403Cord contributors
  */
 
 package main
@@ -16,7 +16,7 @@ import (
 	"github.com/AllenDang/imgui-go"
 	"image"
 	"image/color"
-	"vencordinstaller/buildinfo"
+	"403cordinstaller/buildinfo"
 	// png decoder for icon
 	_ "image/png"
 	"os"
@@ -47,6 +47,10 @@ var (
 	showedUpdatePrompt bool
 
 	win *g.MasterWindow
+
+	CordTeal    = color.RGBA{R: 0x00, G: 0xBD, B: 0x9D, A: 0xFF}
+	CordBg      = color.RGBA{R: 0x0F, G: 0x0F, B: 0x0F, A: 0xFF}
+	CordSurface = color.RGBA{R: 0x1A, G: 0x1A, B: 0x1A, A: 0xFF}
 )
 
 //go:embed winres/icon.png
@@ -72,7 +76,7 @@ func main() {
 		g.Update()
 	}()
 
-	win = g.NewMasterWindow("Vencord Installer", 1200, 800, 0)
+	win = g.NewMasterWindow("403Cord Installer", 1200, 800, 0)
 
 	icon, _, err := image.Decode(bytes.NewReader(iconBytes))
 	if err != nil {
@@ -118,7 +122,7 @@ func InstallLatestBuilds() (err error) {
 
 	err = installLatestBuilds()
 	if err != nil {
-		ShowModal("Uh Oh!", "Failed to install the latest Vencord builds from GitHub:\n"+err.Error())
+		ShowModal("Uh Oh!", "Failed to install the latest 403Cord builds from GitHub:\n"+err.Error())
 	}
 	return
 }
@@ -424,7 +428,7 @@ func renderInstaller() g.Widget {
 		g.Style().SetFontSize(20).To(
 			renderErrorCard(
 				DiscordYellow,
-				"**Github** and **vencord.dev** are the only official places to get Vencord. Any other site claiming to be us is malicious.\n"+
+				"**Github** and **403cord.dev** are the only official places to get 403Cord. Any other site claiming to be us is malicious.\n"+
 					"If you downloaded from any other source, you should delete / uninstall everything immediately, run a malware scan and change your Discord password.",
 				90,
 			),
@@ -536,7 +540,7 @@ func renderInstaller() g.Widget {
 								}
 							}).
 							Size((w-40)/4, 50),
-						Tooltip("Reinstall & Update Vencord"),
+						Tooltip("Reinstall & Update 403Cord"),
 					),
 				g.Style().
 					SetColor(g.StyleColorButton, DiscordRed).
@@ -558,16 +562,16 @@ func renderInstaller() g.Widget {
 		),
 
 		InfoModal("#patched", "Successfully Patched", "If Discord is still open, fully close it first.\n"+
-			"Then, start it and verify Vencord installed successfully by looking for its category in Discord Settings"),
+			"Then, start it and verify 403Cord installed successfully by looking for its category in Discord Settings"),
 		InfoModal("#unpatched", "Successfully Unpatched", "If Discord is still open, fully close it first. Then start it again, it should be back to stock!"),
 		InfoModal("#scuffed-install", "Hold On!", "You have a broken Discord Install.\n"+
 			"Sometimes Discord decides to install to the wrong location for some reason!\n"+
-			"You need to fix this before patching, otherwise Vencord will likely not work.\n\n"+
+			"You need to fix this before patching, otherwise 403Cord will likely not work.\n\n"+
 			"Use the below button to jump there and delete any folder called Discord or Squirrel.\n"+
 			"If the folder is now empty, feel free to go back a step and delete that folder too.\n"+
 			"Then see if Discord still starts. If not, reinstall it"),
 		RawInfoModal("#openasar-confirm", "OpenAsar", "OpenAsar is an open-source alternative of Discord desktop's app.asar.\n"+
-			"Vencord is in no way affiliated with OpenAsar.\n"+
+			"403Cord is in no way affiliated with OpenAsar.\n"+
 			"You're installing OpenAsar at your own risk. If you run into issues with OpenAsar,\n"+
 			"no support will be provided, join the OpenAsar Server instead!\n\n"+
 			"To install OpenAsar, press Accept and click 'Install OpenAsar' again.", true),
@@ -603,6 +607,14 @@ func renderErrorCard(col color.Color, message string, height float32) g.Widget {
 
 func loop() {
 	g.PushWindowPadding(48, 48)
+	g.PushStyleColor(g.StyleColorWindowBg, CordBg)
+	g.PushStyleColor(g.StyleColorTitleBg, CordSurface)
+	g.PushStyleColor(g.StyleColorButton, CordSurface)
+	g.PushStyleColor(g.StyleColorButtonHovered, CordTeal)
+	g.PushStyleVarFloat(g.StyleVarWindowRounding, 16)
+	g.PushStyleVarFloat(g.StyleVarFrameRounding, 8)
+	g.PushStyleVarFloat(g.StyleVarChildRounding, 12)
+	g.PushStyleVarFloat(g.StyleVarPopupRounding, 12)
 
 	g.SingleWindow().
 		RegisterKeyboardShortcuts(
@@ -620,36 +632,36 @@ func loop() {
 		Layout(
 			g.Align(g.AlignCenter).To(
 				g.Style().SetFontSize(40).To(
-					g.Label("Vencord Installer"),
+					g.Label("403Cord Installer"),
 				),
 			),
 
 			g.Dummy(0, 20),
 			g.Style().SetFontSize(20).To(
 				g.Row(
-					g.Label(Ternary(IsDevInstall, "Dev Install: ", "Vencord will be downloaded to: ")+VencordDirectory),
+					g.Label(Ternary(IsDevInstall, "Dev Install: ", "403Cord will be downloaded to: ")+CordDirectory),
 					g.Style().
 						SetColor(g.StyleColorButton, DiscordBlue).
 						SetStyle(g.StyleVarFramePadding, 4, 4).
 						To(
 							g.Button("Open Directory").OnClick(func() {
-								g.OpenURL("file://" + path.Dir(VencordDirectory))
+								g.OpenURL("file://" + path.Dir(CordDirectory))
 							}),
 						),
 				),
 				&CondWidget{!IsDevInstall, func() g.Widget {
-					return g.Label("To customise this location, set the environment variable 'VENCORD_USER_DATA_DIR' and restart me").Wrapped(true)
+					return g.Label("To customise this location, set the environment variable '403CORD_USER_DATA_DIR' and restart me").Wrapped(true)
 				}, nil},
 				g.Dummy(0, 10),
 				g.Label("Installer Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),
-				g.Label("Local Vencord Version: "+InstalledHash),
+				g.Label("Local 403Cord Version: "+InstalledHash),
 				&CondWidget{
 					GithubError == nil,
 					func() g.Widget {
 						if IsDevInstall {
-							return g.Label("Not updating Vencord due to being in DevMode")
+							return g.Label("Not updating 403Cord due to being in DevMode")
 						}
-						return g.Label("Latest Vencord Version: " + LatestHash)
+						return g.Label("Latest 403Cord Version: " + LatestHash)
 					}, func() g.Widget {
 						return renderErrorCard(DiscordRed, "Failed to fetch Info from GitHub: "+GithubError.Error(), 40)
 					},
@@ -659,5 +671,7 @@ func loop() {
 			renderInstaller(),
 		)
 
+	g.PopStyleColorV(4)
+	g.PopStyleVarV(4)
 	g.PopStyle()
 }

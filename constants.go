@@ -1,22 +1,22 @@
 /*
  * SPDX-License-Identifier: GPL-3.0
- * Vencord Installer, a cross platform gui/cli app for installing Vencord
- * Copyright (c) 2023 Vendicated and Vencord contributors
+ * 403Cord Installer, a cross platform gui/cli app for installing 403Cord
+ * Copyright (c) 2023 onlyfourhundredthree and 403Cord contributors
  */
 
 package main
 
 import (
 	"image/color"
-	"vencordinstaller/buildinfo"
+	"403cordinstaller/buildinfo"
 )
 
-const ReleaseUrl = "https://api.github.com/repos/Vendicated/Vencord/releases/latest"
-const ReleaseUrlFallback = "https://vencord.dev/releases/vencord"
-const InstallerReleaseUrl = "https://api.github.com/repos/Vencord/Installer/releases/latest"
-const InstallerReleaseUrlFallback = "https://vencord.dev/releases/installer"
+const ReleaseUrl = "https://api.github.com/repos/onlyfourhundredthree/403Cord/releases/latest"
+const ReleaseUrlFallback = "https://github.com/onlyfourhundredthree/403Cord/releases/latest/download/403cord.zip"
+const InstallerReleaseUrl = "https://api.github.com/repos/onlyfourhundredthree/403Cord-Installer/releases/latest"
+const InstallerReleaseUrlFallback = "https://github.com/onlyfourhundredthree/403Cord-Installer/releases/latest"
 
-var UserAgent = "VencordInstaller/" + buildinfo.InstallerGitHash + " (https://github.com/Vencord/Installer)"
+var UserAgent = "403CordInstaller/" + buildinfo.InstallerGitHash + " (https://github.com/onlyfourhundredthree/403Cord-Installer)"
 
 var (
 	DiscordGreen  = color.RGBA{R: 0x2D, G: 0x7C, B: 0x46, A: 0xFF}
@@ -37,7 +37,6 @@ var LinuxDiscordNames = []string{
 	"discord-ptb",
 	"discord-canary",
 	"discord-development",
-	// Flatpak
 	"com.discordapp.Discord",
 	"com.discordapp.DiscordPTB",
 	"com.discordapp.DiscordCanary",
